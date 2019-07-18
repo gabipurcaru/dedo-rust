@@ -13,10 +13,41 @@ impl Environment {
         }
     }
 
-    pub fn convert_units(&self, value: &Value, new_units: &UnitSet) -> Value {
-        let mut converted = (*value).clone();
+    fn conversion_ratio(&self, from: &Unit, to: &Unit) -> Result<f64, &'static str> {
+        for conversion in &self.conversions {
+            if conversion.from == *from && conversion.to == *to {
+                return Ok(conversion.ratio);
+            }
+        }
 
-        // TODO: conversions e.g. 1km/h to 0.28m/s etc.
+        Err("Cannot convert from TODO to TODO")
+    }
+
+    /// unit conversions e.g. 1km/h to 0.28m/s etc.
+    pub fn convert_units(&self, value: &Value, new_units: &UnitSet) -> Value {
+        let mut converted = value.clone();
+
+        match value {
+            Value {
+                num: _,
+                units: UnitSet(units),
+            } => {
+                for (unit, val) in units.iter() {
+                    for (to_unit, _) in new_units.0.iter() {
+                        match self.conversion_ratio(unit, to_unit) {
+                            Err(_) => {
+                                // pass
+                            }
+                            Ok(ratio) => {
+                                converted.num *= ratio.powf(*val as f64);
+                                converted.units.0.remove(&unit);
+                                converted.units.0.insert(to_unit.clone(), val.clone());
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         converted
     }
@@ -97,8 +128,8 @@ impl Environment {
     }
 }
 
-// Utility to help create a static environment. Basic syntax is
-// environment!["some_unit" to "some_other_unit" is 123.456, ...]
+/// Utility to help create a static environment. Basic syntax is
+/// environment!["some_unit" to "some_other_unit" is 123.456, ...]
 #[macro_export]
 macro_rules! environment {
     ($($from:literal to $to:literal is $num:literal),*) => {
@@ -133,15 +164,35 @@ impl Conversion {
 #[derive(Clone, Debug, Hash, PartialEq, Eq)]
 pub struct Unit(pub String);
 
+impl From<&str> for Unit {
+    fn from(name: &str) -> Self {
+        Unit(name.into())
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct UnitSet(pub HashMap<Unit, i32>);
 
-impl UnitSet {
-    pub fn single(unit: &'static str) -> UnitSet {
-        let mut unit_map = HashMap::new();
-        unit_map.insert(Unit(unit.to_string()), 1);
+impl From<Unit> for UnitSet {
+    fn from(unit: Unit) -> UnitSet {
+        let mut unit_map: HashMap<Unit, i32> = HashMap::new();
+        unit_map.insert(unit.into(), 1);
         UnitSet(unit_map)
     }
+}
+
+#[macro_export]
+macro_rules! units {
+    ($($from:literal to $to:literal),*) => {
+        {
+            use std::collections::HashMap;
+            let mut tmp_map: HashMap<Unit, i32> = HashMap::new();
+            $(
+                tmp_map.insert($from.into(), $to);
+            )*
+            UnitSet(tmp_map)
+        }
+    } ;
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -151,15 +202,18 @@ pub struct Value {
 }
 
 impl Value {
-    pub fn new(num: i32, unit: Unit) -> Value {
-        let mut unit_map = HashMap::new();
-        unit_map.insert(Unit("km".to_string()), num);
-
-        let units = UnitSet(unit_map);
-
+    pub fn new<U: Into<UnitSet>>(num: f64, units: U) -> Value {
         Value {
-            num: num as f64,
-            units,
+            num,
+            units: units.into(),
+        }
+    }
+
+    pub fn simple<U: Into<String>>(num: f64, units: U) -> Value {
+        let unit_str: String = units.into();
+        Value {
+            num,
+            units: UnitSet::from(Unit(unit_str)),
         }
     }
 }
