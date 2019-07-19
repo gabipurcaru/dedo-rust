@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::ops::Add;
 use std::string::String;
 
 #[derive(Debug, PartialEq)]
@@ -126,6 +125,60 @@ impl Environment {
         }
 
         true
+    }
+
+    pub fn add(self, left: Value, right: Value) -> Value {
+        let converted_right = self.convert_units(&right, &left.units);
+
+        Value {
+            num: left.num + converted_right.num,
+            units: left.units,
+        }
+    }
+
+    pub fn sub(self, left: Value, right: Value) -> Value {
+        let converted_right = self.convert_units(&right, &left.units);
+
+        Value {
+            num: left.num - converted_right.num,
+            units: left.units,
+        }
+    }
+
+    pub fn mul(self, left: Value, right: Value) -> Value {
+        let converted_right = self.convert_units(&right, &left.units);
+        let mut result_units = left.units.0.clone();
+
+        for (unit, num) in converted_right.units.0.iter() {
+            let result_num = result_units.entry(unit.clone()).or_insert(0);
+            *result_num += num;
+
+            if *result_num == 0 {
+                result_units.remove(unit);
+            }
+        }
+
+        Value {
+            num: left.num * converted_right.num,
+            units: UnitSet(result_units),
+        }
+    }
+
+    pub fn div(self, left: Value, right: Value) -> Value {
+        let inverted_units = right
+            .units
+            .0
+            .clone()
+            .into_iter()
+            .map(|(k, v)| (k, -v))
+            .collect();
+
+        let inverted_right = Value {
+            num: right.num,
+            units: UnitSet(inverted_units),
+        };
+
+        self.mul(left, inverted_right)
     }
 }
 

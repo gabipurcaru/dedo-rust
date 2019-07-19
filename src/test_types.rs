@@ -64,4 +64,110 @@ mod tests {
             )
         );
     }
+
+    #[test]
+    fn addition() {
+        let env = get_env();
+        let left = Value::new(
+            12.,
+            units!(
+                "km" to 1,
+                "h" to -1
+            ),
+        );
+        let right = Value::new(
+            10.,
+            units!(
+                "m" to 1,
+                "s" to -1
+            ),
+        );
+        let expected = Value::new(
+            48.,
+            units!(
+                "km" to 1,
+                "h" to -1
+            ),
+        );
+        assert_eq!(env.add(left, right), expected);
+    }
+
+    #[test]
+    fn subtraction() {
+        let env = get_env();
+        let left = Value::new(
+            50.,
+            units!(
+                "km" to 1,
+                "h" to -1
+            ),
+        );
+        let right = Value::new(
+            10.,
+            units!(
+                "m" to 1,
+                "s" to -1
+            ),
+        );
+        let expected = Value::new(
+            14.,
+            units!(
+                "km" to 1,
+                "h" to -1
+            ),
+        );
+        assert_eq!(env.sub(left, right), expected);
+    }
+
+    #[test]
+    fn multiplication() {
+        let env = get_env();
+        let left = Value::new(
+            36.,
+            units!(
+                "km" to 1,
+                "h" to -1
+            ),
+        );
+        let right = Value::new(
+            10.,
+            units!(
+                "m" to 1,
+                "s" to 1
+            ),
+        );
+        let expected = Value::new(
+            0.0001,
+            units!(
+                "km" to 2
+            ),
+        );
+        assert_eq!(env.mul(left, right), expected);
+    }
+
+    #[test]
+    fn division() {
+        let env = get_env();
+        let left = Value::new(
+            36.,
+            units!(
+                "km" to 1,
+                "h" to -1
+            ),
+        );
+        let right = Value::new(
+            10.,
+            units!(
+                "m" to 1,
+                "s" to 1
+            ),
+        );
+        let expected = Value::new(
+            1296000000.0,
+            units!(
+                "h" to -2
+            ),
+        );
+        assert_eq!(env.div(left, right), expected);
+    }
 }
