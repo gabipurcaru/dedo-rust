@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::ops::Add;
 use std::string::String;
 
 #[derive(Debug, PartialEq)]
@@ -13,14 +14,14 @@ impl Environment {
         }
     }
 
-    fn conversion_ratio(&self, from: &Unit, to: &Unit) -> Result<f64, &'static str> {
+    fn conversion_ratio(&self, from: &Unit, to: &Unit) -> Result<f64, String> {
         for conversion in &self.conversions {
             if conversion.from == *from && conversion.to == *to {
                 return Ok(conversion.ratio);
             }
         }
 
-        Err("Cannot convert from TODO to TODO")
+        Err(format!("Cannot convert from {:?} to {:?}", from, to))
     }
 
     /// unit conversions e.g. 1km/h to 0.28m/s etc.
