@@ -127,7 +127,7 @@ impl Environment {
         true
     }
 
-    pub fn add(self, left: Value, right: Value) -> Value {
+    pub fn add(&self, left: Value, right: Value) -> Value {
         let converted_right = self.convert_units(&right, &left.units);
 
         Value {
@@ -136,7 +136,7 @@ impl Environment {
         }
     }
 
-    pub fn sub(self, left: Value, right: Value) -> Value {
+    pub fn sub(&self, left: Value, right: Value) -> Value {
         let converted_right = self.convert_units(&right, &left.units);
 
         Value {
@@ -145,7 +145,7 @@ impl Environment {
         }
     }
 
-    pub fn mul(self, left: Value, right: Value) -> Value {
+    pub fn mul(&self, left: Value, right: Value) -> Value {
         let converted_right = self.convert_units(&right, &left.units);
         let mut result_units = left.units.0.clone();
 
@@ -164,7 +164,7 @@ impl Environment {
         }
     }
 
-    pub fn div(self, left: Value, right: Value) -> Value {
+    pub fn div(&self, left: Value, right: Value) -> Value {
         let inverted_units = right
             .units
             .0
@@ -269,5 +269,16 @@ impl Value {
             num,
             units: UnitSet::from(Unit(unit_str)),
         }
+    }
+
+    pub fn unitless(num: f64) -> Value {
+        Value {
+            num,
+            units: UnitSet(HashMap::new()),
+        }
+    }
+
+    pub fn zero() -> Value {
+        Self::unitless(0.0)
     }
 }

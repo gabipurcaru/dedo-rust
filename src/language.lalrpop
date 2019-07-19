@@ -1,0 +1,17 @@
+use std::str::FromStr;
+use crate::types::{Value};
+use crate::defaults::{ENVIRONMENT};
+
+grammar;
+
+Num: f64 = r"[0-9]+(?:\.[0-9]+)?" => f64::from_str(<>).unwrap();
+
+Ident: String = r"[a-zA-Z£$€_]+" => <>.into();
+
+pub Term: Value = {
+    "(" <Term> ")" => <>,
+    "-" <Term> => ENVIRONMENT.sub(Value::zero(), <>), // TODO: preserve units
+    <Num> <Ident> => Value::simple(<>),
+    <i:Ident> <n:Num> => Value::simple(n, i),
+    <Num> => Value::unitless(<>),
+};
