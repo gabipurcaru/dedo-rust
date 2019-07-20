@@ -37,5 +37,15 @@ mod tests {
             language::TermParser::new().parse(&mut ENVIRONMENT.clone(), "123 usd - 12 usd"),
             Ok(Value::simple(111.0, "usd")),
         );
+
+        assert_eq!(
+            language::TermParser::new().parse(&mut ENVIRONMENT.clone(), "-123 usd - 12 usd * 14"),
+            Ok(Value::simple(-291.0, "usd")),
+        );
+
+        assert_eq!(
+            language::TermParser::new().parse(&mut ENVIRONMENT.clone(), "2 * 3 + 4"),
+            Ok(Value::unitless(10.0)),
+        );
     }
 }
