@@ -48,4 +48,22 @@ mod tests {
             Ok(Value::unitless(10.0)),
         );
     }
+
+    #[test]
+    fn parse_power() {
+        assert_eq!(
+            language::TermParser::new().parse(&mut ENVIRONMENT.clone(), "2 ** 3"),
+            Ok(Value::unitless(8.0)),
+        );
+        assert_eq!(
+            language::TermParser::new().parse(&mut ENVIRONMENT.clone(), "($2) ** 3"),
+            Ok(Value::new(8.0, units!("$" to 3))),
+        );
+
+        // TODO:
+        // assert_eq!(
+        //     language::TermParser::new().parse(&mut ENVIRONMENT.clone(), "($1 + $1) ** (1 + 4 - 2)"),
+        //     Ok(Value::new(8.0, units!("$" to 3))),
+        // );
+    }
 }

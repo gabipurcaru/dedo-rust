@@ -180,6 +180,33 @@ impl Environment {
 
         self.mul(left, inverted_right)
     }
+
+    /// Unit powers
+    ///
+    /// Example:
+    /// ```
+    /// # use std::collections::HashMap;
+    /// # use dedo_rust::*;
+    /// # use dedo_rust::types::*;
+    /// # use dedo_rust::defaults::*;
+    /// # let env = ENVIRONMENT.clone();
+    /// let res = env.pow(Value::simple(12.0, "usd"), Value::unitless(4.0));
+    /// assert_eq!(res, Value::new(20736.0, units!("usd" to 4)));
+    /// ```
+    pub fn pow(&self, left: Value, right: Value) -> Value {
+        let pow = right.num.round();
+
+        let units = left
+            .units
+            .0
+            .into_iter()
+            .map(|(k, v)| (k, v * (pow as i32)))
+            .collect();
+        Value {
+            num: left.num.powf(pow),
+            units: UnitSet(units),
+        }
+    }
 }
 
 /// Utility to help create a static environment. Basic syntax is

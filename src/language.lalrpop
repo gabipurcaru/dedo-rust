@@ -15,10 +15,16 @@ BasicTerm: Value = {
     <Num> => Value::unitless(<>),
 };
 
-MulTerm: Value = {
+PowTerm: Value = {
     BasicTerm,
-    <MulTerm> "*" <BasicTerm> => env.mul(<>),
-    <MulTerm> "/" <BasicTerm> => env.div(<>),
+    <PowTerm> "**" <BasicTerm> => env.pow(<>),
+    <PowTerm> "^" <BasicTerm> => env.pow(<>),
+}
+
+MulTerm: Value = {
+    PowTerm,
+    <MulTerm> "*" <PowTerm> => env.mul(<>),
+    <MulTerm> "/" <PowTerm> => env.div(<>),
 }
 
 AddTerm: Value = {
