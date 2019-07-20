@@ -1,17 +1,30 @@
 use std::str::FromStr;
-use crate::types::{Value};
-use crate::defaults::{ENVIRONMENT};
+use crate::types::{Value, Environment};
 
-grammar;
+grammar<'a>(env: &'a mut Environment);
 
 Num: f64 = r"[0-9]+(?:\.[0-9]+)?" => f64::from_str(<>).unwrap();
 
 Ident: String = r"[a-zA-Z£$€_]+" => <>.into();
 
-pub Term: Value = {
-    "(" <Term> ")" => <>,
-    "-" <Term> => Value::negate(<>), // TODO: preserve units
+BasicTerm: Value = {
+    "(" <BasicTerm> ")" => <>,
+    "-" <BasicTerm> => Value::negate(<>), // TODO: preserve units
     <Num> <Ident> => Value::simple(<>),
     <i:Ident> <n:Num> => Value::simple(n, i),
     <Num> => Value::unitless(<>),
 };
+
+MulTerm: Value = {
+    BasicTerm,
+    <MulTerm> "*" <BasicTerm> => env.mul(<>),
+    <MulTerm> "/" <BasicTerm> => env.div(<>),
+}
+
+AddTerm: Value = {
+    MulTerm,
+    <AddTerm> "+" <MulTerm> => env.add(<>),
+    <AddTerm> "-" <MulTerm> => env.sub(<>),
+}
+
+pub Term: Value = AddTerm;

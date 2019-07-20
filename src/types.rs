@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::string::String;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Environment {
     pub conversions: Vec<Conversion>,
 }

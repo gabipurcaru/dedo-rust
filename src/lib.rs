@@ -8,8 +8,6 @@ extern crate lalrpop_util;
 pub mod types;
 pub mod defaults;
 
-pub mod parser;
-
 // test
 mod test_parser;
 mod test_types;
