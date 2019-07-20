@@ -271,6 +271,13 @@ impl Value {
         }
     }
 
+    /// A value with no units and the given number
+    ///
+    /// Example:
+    /// ```
+    /// # use dedo_rust::types::*;
+    /// let value = Value::unitless(14.1);
+    /// ```
     pub fn unitless(num: f64) -> Value {
         Value {
             num,
@@ -278,7 +285,33 @@ impl Value {
         }
     }
 
+    /// The zero value
+    ///
+    /// Example:
+    /// ```
+    /// # use dedo_rust::types::*;
+    /// # use std::collections::HashMap;
+    /// let value = Value::zero();
+    /// assert_eq!(value, Value::unitless(0.0));
+    /// ```
     pub fn zero() -> Value {
         Self::unitless(0.0)
+    }
+
+    /// Negates a value
+    ///
+    /// Example:
+    /// ```
+    /// # use dedo_rust::types::*;
+    /// let value = Value::simple(123.0, "$").negate();
+    /// let other_value = Value::negate(Value::simple(123.0, "$"));
+    /// # assert_eq!(value, Value::simple(-123.0, "$"));
+    /// # assert_eq!(other_value, Value::simple(-123.0, "$"));
+    /// ```
+    pub fn negate(self) -> Value {
+        Value {
+            num: -self.num,
+            units: self.units,
+        }
     }
 }

@@ -10,7 +10,7 @@ Ident: String = r"[a-zA-Z£$€_]+" => <>.into();
 
 pub Term: Value = {
     "(" <Term> ")" => <>,
-    "-" <Term> => ENVIRONMENT.sub(Value::zero(), <>), // TODO: preserve units
+    "-" <Term> => Value::negate(<>), // TODO: preserve units
     <Num> <Ident> => Value::simple(<>),
     <i:Ident> <n:Num> => Value::simple(n, i),
     <Num> => Value::unitless(<>),
