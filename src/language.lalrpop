@@ -8,8 +8,8 @@ Num: f64 = r"[0-9]+(?:\.[0-9]+)?" => f64::from_str(<>).unwrap();
 Ident: String = r"[a-zA-Z£$€_]+" => <>.into();
 
 BasicTerm: Value = {
-    "(" <BasicTerm> ")" => <>,
-    "-" <BasicTerm> => Value::negate(<>), // TODO: preserve units
+    "(" <Term> ")" => <>,
+    "-" <BasicTerm> => Value::negate(<>),
     <Num> <Ident> => Value::simple(<>),
     <i:Ident> <n:Num> => Value::simple(n, i),
     <Num> => Value::unitless(<>),
@@ -33,4 +33,6 @@ AddTerm: Value = {
     <AddTerm> "-" <MulTerm> => env.sub(<>),
 }
 
-pub Term: Value = AddTerm;
+pub Term: Value = {
+    AddTerm,
+};

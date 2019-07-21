@@ -47,6 +47,11 @@ mod tests {
             language::TermParser::new().parse(&mut ENVIRONMENT.clone(), "2 * 3 + 4"),
             Ok(Value::unitless(10.0)),
         );
+
+        assert_eq!(
+            language::TermParser::new().parse(&mut ENVIRONMENT.clone(), "2 * (3 + 4)"),
+            Ok(Value::unitless(14.0)),
+        );
     }
 
     #[test]
@@ -60,10 +65,9 @@ mod tests {
             Ok(Value::new(8.0, units!("$" to 3))),
         );
 
-        // TODO:
-        // assert_eq!(
-        //     language::TermParser::new().parse(&mut ENVIRONMENT.clone(), "($1 + $1) ** (1 + 4 - 2)"),
-        //     Ok(Value::new(8.0, units!("$" to 3))),
-        // );
+        assert_eq!(
+            language::TermParser::new().parse(&mut ENVIRONMENT.clone(), "($1 + $1) ** (1 + 4 - 2)"),
+            Ok(Value::new(8.0, units!("$" to 3))),
+        );
     }
 }
