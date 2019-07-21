@@ -13,6 +13,7 @@ BasicTerm: Value = {
     <Num> <Ident> => Value::simple(<>),
     <i:Ident> <n:Num> => Value::simple(n, i),
     <Num> => Value::unitless(<>),
+    <Ident> => Value::simple(1.0, <>)
 };
 
 PowTerm: Value = {

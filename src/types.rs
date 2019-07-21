@@ -174,7 +174,7 @@ impl Environment {
             .collect();
 
         let inverted_right = Value {
-            num: right.num,
+            num: 1.0 / right.num,
             units: UnitSet(inverted_units),
         };
 

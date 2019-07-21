@@ -14,13 +14,17 @@ pub fn parse_single<'input>(
     language::TermParser::new().parse(env, input)
 }
 
-pub fn parse<'input>(input: &'input str) -> Vec<Result<Value, ParsingError<'input>>> {
+pub fn parse<'input>(input: &'input str) -> Vec<Result<Value, ()>> {
     // parse the input line by line
     let lines: Vec<&str> = input.split("\n").collect();
     let mut env = ENVIRONMENT.clone();
     let mut res = Vec::new();
     for line in lines.iter() {
-        res.push(language::TermParser::new().parse(&mut env, line))
+        res.push(
+            language::TermParser::new()
+                .parse(&mut env, line)
+                .map_err(|_| ()),
+        );
     }
 
     res

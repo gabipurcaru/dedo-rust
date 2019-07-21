@@ -15,7 +15,9 @@ fn split_spec(input: String) -> (String, String) {
     let mut right = String::new();
     for (left_line, right_line) in splits.iter() {
         left.push_str(left_line.trim());
+        left.push_str("\\n");
         right.push_str(right_line.trim());
+        right.push_str("\\n");
     }
     (left, right)
 }

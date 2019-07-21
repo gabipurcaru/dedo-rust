@@ -163,11 +163,16 @@ mod tests {
             ),
         );
         let expected = Value::new(
-            1296000000.0,
+            12960000.0,
             units!(
                 "h" to -2
             ),
         );
         assert_eq!(env.div(left, right), expected);
+
+        assert_eq!(
+            env.div(Value::unitless(2.0), Value::unitless(2.0)),
+            Value::unitless(1.0)
+        );
     }
 }
