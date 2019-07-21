@@ -70,4 +70,7 @@ mod tests {
             Ok(Value::new(8.0, units!("$" to 3))),
         );
     }
+
+    // these are the tests generated at build time from the ./spec folder
+    include!(concat!(env!("OUT_DIR"), "/spec_tests.rs"));
 }
