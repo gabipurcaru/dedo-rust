@@ -25,7 +25,6 @@ fn main() {
 
     let paths = fs::read_dir("./spec").unwrap();
 
-
     let out_dir = env::var("OUT_DIR").unwrap();
     let dest_path = Path::new(&out_dir).join("spec_tests.rs");
     let mut f = fs::File::create(&dest_path).unwrap();
@@ -35,14 +34,18 @@ fn main() {
         let filename = filepath.file_stem().unwrap().to_str().unwrap();
         let contents = fs::read_to_string(filepath.clone()).unwrap();
 
+        if contents.contains("\"") {
+            panic!("Input file {} cannot contain double quotes", filename);
+        }
+
         let (left, right) = split_spec(contents);
 
         f.write_all(format!("
             #[test]
             pub fn spec_{}() {{
                 assert_eq!(
-                    language::TermParser::new().parse(&mut ENVIRONMENT.clone(), \"{}\"),
-                    language::TermParser::new().parse(&mut ENVIRONMENT.clone(), \"{}\"),
+                    parse(\"{}\"),
+                    parse(\"{}\"),
                 );
             }}
         ", filename, left, right).as_bytes()).unwrap();
