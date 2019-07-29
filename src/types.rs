@@ -214,22 +214,35 @@ impl Environment {
         }
     }
 
-    pub fn ident<U: Into<String>>(&self, ident: U) -> Value {
+    pub fn ident<U: Into<String>>(&self, ident: U) -> Result<Value, ()> {
         match ident.into().as_ref() {
             "sum" => self.sum(),
-            units => Value::simple(1.0, units),
+            "prev" => self.prev(),
+            units => Ok(Value::simple(1.0, units)),
         }
     }
 
-    pub fn sum(&self) -> Value {
-        let mut res = Value::zero();
+    pub fn sum(&self) -> Result<Value, ()> {
+        let mut res: Result<Value, ()> = Err(());
         for row in self.values.iter().rev() {
-            match row {
-                Ok(val) => res = self.add(val.clone(), res),
+            match (row.clone(), res.clone()) {
+                (Ok(lhs), Ok(rhs)) => {
+                    res = Ok(self.add(lhs, rhs));
+                }
+                (Ok(lhs), Err(())) => {
+                    res = Ok(lhs.clone());
+                }
                 _ => break,
             }
         }
         res
+    }
+
+    pub fn prev(&self) -> Result<Value, ()> {
+        for row in self.values.iter().rev() {
+            return row.clone();
+        }
+        return Err(());
     }
 }
 

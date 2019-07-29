@@ -7,33 +7,33 @@ Num: f64 = r"[0-9]+(?:\.[0-9]+)?" => f64::from_str(<>).unwrap();
 
 Ident: String = r"[a-zA-Z£$€_]+" => <>.into();
 
-BasicTerm: Value = {
+BasicTerm: Result<Value, ()> = {
     "(" <Term> ")" => <>,
-    "-" <BasicTerm> => Value::negate(<>),
-    <Num> <Ident> => Value::simple(<>),
-    <i:Ident> <n:Num> => Value::simple(n, i),
-    <Num> => Value::unitless(<>),
-    <Ident> => env.ident(<>)
+    "-" <BasicTerm> => Ok(Value::negate(<>?)),
+    <Num> <Ident> => Ok(Value::simple(<>)),
+    <i:Ident> <n:Num> => Ok(Value::simple(n, i)),
+    <Num> => Ok(Value::unitless(<>)),
+    <Ident> => env.ident(<>),
 };
 
-PowTerm: Value = {
+PowTerm: Result<Value, ()> = {
     BasicTerm,
-    <PowTerm> "**" <BasicTerm> => env.pow(<>),
-    <PowTerm> "^" <BasicTerm> => env.pow(<>),
+    <l:PowTerm> "**" <r:BasicTerm> => Ok(env.pow(l?, r?)),
+    <l:PowTerm> "^" <r:BasicTerm> => Ok(env.pow(l?, r?)),
 }
 
-MulTerm: Value = {
+MulTerm: Result<Value, ()> = {
     PowTerm,
-    <MulTerm> "*" <PowTerm> => env.mul(<>),
-    <MulTerm> "/" <PowTerm> => env.div(<>),
+    <l:MulTerm> "*" <r:PowTerm> => Ok(env.mul(l?, r?)),
+    <l:MulTerm> "/" <r:PowTerm> => Ok(env.div(l?, r?)),
 }
 
-AddTerm: Value = {
+AddTerm: Result<Value, ()> = {
     MulTerm,
-    <AddTerm> "+" <MulTerm> => env.add(<>),
-    <AddTerm> "-" <MulTerm> => env.sub(<>),
+    <l:AddTerm> "+" <r:MulTerm> => Ok(env.add(l?, r?)),
+    <l:AddTerm> "-" <r:MulTerm> => Ok(env.sub(l?, r?)),
 }
 
-pub Term: Value = {
+pub Term: Result<Value, ()> = {
     AddTerm,
 };

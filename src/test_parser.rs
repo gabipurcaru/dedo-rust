@@ -1,10 +1,10 @@
 #[cfg(test)]
 mod tests {
     use super::super::defaults::ENVIRONMENT;
-    use super::super::parser::{parse, parse_single, ParsingError};
+    use super::super::parser::{parse, parse_single};
     use super::super::types::{Unit, UnitSet, Value};
 
-    fn parse_helper(input: &'static str) -> Result<Value, ParsingError> {
+    fn parse_helper(input: &'static str) -> Result<Value, ()> {
         parse_single(&mut ENVIRONMENT.clone(), input)
     }
 
