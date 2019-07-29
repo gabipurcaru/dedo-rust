@@ -20,11 +20,11 @@ pub fn parse<'input>(input: &'input str) -> Vec<Result<Value, ()>> {
     let mut env = ENVIRONMENT.clone();
     let mut res = Vec::new();
     for line in lines.iter() {
-        res.push(
-            language::TermParser::new()
-                .parse(&mut env, line)
-                .map_err(|_| ()),
-        );
+        let val = language::TermParser::new()
+            .parse(&mut env, line)
+            .map_err(|_| ());
+        res.push(val.clone());
+        env.add_entry(val);
     }
 
     res

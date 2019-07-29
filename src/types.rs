@@ -4,13 +4,19 @@ use std::string::String;
 #[derive(Debug, PartialEq, Clone)]
 pub struct Environment {
     pub conversions: Vec<Conversion>,
+    values: Vec<Result<Value, ()>>,
 }
 
 impl Environment {
     pub fn new(conversions: &Vec<Conversion>) -> Environment {
         Environment {
             conversions: Environment::expand_conversions(conversions),
+            values: Vec::new(),
         }
+    }
+
+    pub fn add_entry(&mut self, val: Result<Value, ()>) {
+        self.values.push(val);
     }
 
     fn conversion_ratio(&self, from: &Unit, to: &Unit) -> Result<f64, String> {
@@ -206,6 +212,24 @@ impl Environment {
             num: left.num.powf(pow),
             units: UnitSet(units),
         }
+    }
+
+    pub fn ident<U: Into<String>>(&self, ident: U) -> Value {
+        match ident.into().as_ref() {
+            "sum" => self.sum(),
+            units => Value::simple(1.0, units),
+        }
+    }
+
+    pub fn sum(&self) -> Value {
+        let mut res = Value::zero();
+        for row in self.values.iter().rev() {
+            match row {
+                Ok(val) => res = self.add(val.clone(), res),
+                _ => break,
+            }
+        }
+        res
     }
 }
 
