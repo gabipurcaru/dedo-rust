@@ -36,5 +36,7 @@ AddTerm: Result<Value, ()> = {
 
 pub Term: Result<Value, ()> = {
     AddTerm,
-    <i:Ident> "=" <v:Term> => env.assign(i, v?),
+    <i:Ident> "=" <v:AddTerm> => env.assign(i, v?),
+    <lhs:Term> "in" <rhs:MulTerm> => Ok(env.convert(lhs?, rhs?)),
+    <lhs:Term> "to" <rhs:MulTerm> => Ok(env.convert(lhs?, rhs?)),
 };

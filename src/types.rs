@@ -252,6 +252,10 @@ impl Environment {
         self.vars.insert(ident.into(), value.clone());
         Ok(value.clone())
     }
+
+    pub fn convert(&self, value: Value, target: Value) -> Value {
+        self.convert_units(&value, &target.units)
+    }
 }
 
 /// Utility to help create a static environment. Basic syntax is
