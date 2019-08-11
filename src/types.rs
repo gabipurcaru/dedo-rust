@@ -5,6 +5,7 @@ use std::string::String;
 pub struct Environment {
     pub conversions: Vec<Conversion>,
     values: Vec<Result<Value, ()>>,
+    vars: HashMap<String, Value>,
 }
 
 impl Environment {
@@ -12,6 +13,7 @@ impl Environment {
         Environment {
             conversions: Environment::expand_conversions(conversions),
             values: Vec::new(),
+            vars: HashMap::new(),
         }
     }
 
@@ -214,11 +216,12 @@ impl Environment {
         }
     }
 
-    pub fn ident<U: Into<String>>(&self, ident: U) -> Result<Value, ()> {
-        match ident.into().as_ref() {
-            "sum" => self.sum(),
-            "prev" => self.prev(),
-            units => Ok(Value::simple(1.0, units)),
+    pub fn ident(&self, ident: String) -> Result<Value, ()> {
+        match (ident.as_ref(), self.vars.get(&ident)) {
+            ("sum", _) => self.sum(),
+            ("prev", _) => self.prev(),
+            (_, Some(v)) => Ok(v.clone()),
+            (units, _) => Ok(Value::simple(1.0, units)),
         }
     }
 
@@ -243,6 +246,11 @@ impl Environment {
             return row.clone();
         }
         return Err(());
+    }
+
+    pub fn assign<U: Into<String>>(&mut self, ident: U, value: Value) -> Result<Value, ()> {
+        self.vars.insert(ident.into(), value.clone());
+        Ok(value.clone())
     }
 }
 
