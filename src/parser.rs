@@ -1,5 +1,6 @@
 use crate::defaults::ENVIRONMENT;
 use crate::types::*;
+use regex::Regex;
 
 lalrpop_mod!(language);
 
@@ -11,12 +12,16 @@ pub fn parse_single<'input>(env: &mut Environment, input: &'input str) -> Result
 }
 
 pub fn parse<'input>(input: &'input str) -> Vec<Result<Value, ()>> {
+    lazy_static! {
+        static ref RE: Regex = Regex::new("^(.*:)?(.*)$").unwrap();
+    }
     // parse the input line by line
     let lines: Vec<&str> = input.split("\n").collect();
     let mut env = ENVIRONMENT.clone();
     let mut res = Vec::new();
     for line in lines.iter() {
-        let val: Result<Value, ()> = parse_single(&mut env, line);
+        let filtered_line = RE.captures(line).unwrap().get(2).unwrap().as_str();
+        let val: Result<Value, ()> = parse_single(&mut env, filtered_line);
         res.push(val.clone());
         env.add_entry(val);
     }
