@@ -291,7 +291,7 @@ impl Conversion {
     }
 }
 
-#[derive(Clone, Debug, Hash, PartialEq, Eq)]
+#[derive(Clone, Debug, Hash)]
 pub struct Unit(pub String);
 
 impl From<&str> for Unit {
@@ -299,6 +299,14 @@ impl From<&str> for Unit {
         Unit(name.into())
     }
 }
+
+impl PartialEq for Unit {
+    fn eq(&self, other: &Self) -> bool {
+        self.0.to_lowercase() == other.0.to_lowercase()
+    }
+}
+
+impl Eq for Unit {}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct UnitSet(pub HashMap<Unit, i32>);
