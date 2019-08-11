@@ -33,7 +33,7 @@ mod tests {
         assert_eq!(get_env().conversions.len(), 14);
 
         // combinatorial explosion!
-        assert_eq!(ENVIRONMENT.conversions.len(), 188);
+        assert_eq!(ENVIRONMENT.conversions.len(), 216);
     }
 
     #[bench]
