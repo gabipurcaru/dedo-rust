@@ -1,2 +1,4 @@
-1m in cm       | 100cm
-prev in mm     | 1000mm
+1m in cm             | 100cm
+prev in mm           | 1000mm
+3600sec in hour      | 1 hour
+12m/sec in km/hour   | 43.2km/hour

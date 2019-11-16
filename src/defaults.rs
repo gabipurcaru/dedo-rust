@@ -26,9 +26,10 @@ lazy_static! {
        "week" to "weeks" is 1,
        "month" to "months" is 1,
        "year" to "years" is 1,
-       "s" to "second" is 1,
        "sec" to "second" is 1,
        "min" to "minute" is 1,
+       "s" to "second" is 1,
+       // m is for meters, not minutes!
        "h" to "hour" is 1,
        "d" to "day" is 1,
        "w" to "week" is 1,

@@ -22,6 +22,7 @@ impl Environment {
     }
 
     fn conversion_ratio(&self, from: &Unit, to: &Unit) -> Result<f64, String> {
+        // TODO: replace with hashmap lookup
         for conversion in &self.conversions {
             if conversion.from == *from && conversion.to == *to {
                 return Ok(conversion.ratio);
@@ -93,10 +94,10 @@ impl Environment {
 
         // for all a -> b and b -> c, add a -> c, aka transitive conversions
 
-        let initial_length = conversions.len();
         loop {
             // loop until no changes are made anymore
             let mut is_saturated = true;
+            let initial_length = conversions.len();
 
             for left in 0..initial_length {
                 for right in 0..initial_length {

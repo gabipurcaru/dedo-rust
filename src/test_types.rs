@@ -10,7 +10,8 @@ mod tests {
         environment![
             "km" to "m" is 1000.0,
             "m" to "cm" is 1000.0,
-            "h" to "s" is 3600.0
+            "h" to "min" is 60.0,
+            "min" to "s" is 60.0
         ]
     }
 
@@ -21,7 +22,8 @@ mod tests {
             Environment::new(&vec![
                 Conversion::new("km", "m", 1000.0),
                 Conversion::new("m", "cm", 1000.0),
-                Conversion::new("h", "s", 3600.0),
+                Conversion::new("h", "min", 60.0),
+                Conversion::new("min", "s", 60.0),
             ],),
         );
     }
@@ -30,10 +32,10 @@ mod tests {
     fn environment_size() {
         // all self, mirror and transitive
         // dependencies should be there
-        assert_eq!(get_env().conversions.len(), 14);
+        assert_eq!(get_env().conversions.len(), 20);
 
         // combinatorial explosion!
-        assert_eq!(ENVIRONMENT.conversions.len(), 216);
+        assert_eq!(ENVIRONMENT.conversions.len(), 510);
     }
 
     #[bench]
