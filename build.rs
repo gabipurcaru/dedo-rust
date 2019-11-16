@@ -7,6 +7,7 @@ use std::path::Path;
 
 fn split_spec(input: String) -> (String, String) {
     let splits: Vec<(&str, &str)> = input
+        .trim()
         .split("\n")
         .map(|line| line.split("|").collect())
         .map(|line: Vec<&str>| (line[0], line[1]))
@@ -29,7 +30,7 @@ fn main() {
 
     let out_dir = env::var("OUT_DIR").unwrap();
     let dest_path = Path::new(&out_dir).join("spec_tests.rs");
-    let mut f = fs::File::create(&dest_path).unwrap();
+    let mut output_file = fs::File::create(&dest_path).unwrap();
 
     for path in paths {
         let filepath = path.unwrap().path();
@@ -42,14 +43,14 @@ fn main() {
 
         let (left, right) = split_spec(contents);
 
-        f.write_all(format!("
+        output_file.write_all(format!("
             #[test]
             pub fn spec_{}() {{
-                assert_eq!(
+                self::assert_eq!(
                     parse(\"{}\"),
                     parse(\"{}\"),
                 );
             }}
-        ", filename, left, right).as_bytes()).unwrap();
+        ", filename, right, left).as_bytes()).unwrap();
     }
 }

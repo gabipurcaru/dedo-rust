@@ -219,6 +219,7 @@ impl Environment {
     pub fn ident(&self, ident: String) -> Result<Value, ()> {
         match (ident.as_ref(), self.vars.get(&ident)) {
             ("sum", _) => self.sum(),
+            ("prod", _) => self.prod(),
             ("prev", _) => self.prev(),
             (_, Some(v)) => Ok(v.clone()),
             (units, _) => Ok(Value::simple(1.0, units)),
@@ -231,6 +232,22 @@ impl Environment {
             match (row.clone(), res.clone()) {
                 (Ok(lhs), Ok(rhs)) => {
                     res = Ok(self.add(lhs, rhs));
+                }
+                (Ok(lhs), Err(())) => {
+                    res = Ok(lhs.clone());
+                }
+                _ => break,
+            }
+        }
+        res
+    }
+
+    pub fn prod(&self) -> Result<Value, ()> {
+        let mut res: Result<Value, ()> = Err(());
+        for row in self.values.iter().rev() {
+            match (row.clone(), res.clone()) {
+                (Ok(lhs), Ok(rhs)) => {
+                    res = Ok(self.mul(lhs, rhs));
                 }
                 (Ok(lhs), Err(())) => {
                     res = Ok(lhs.clone());

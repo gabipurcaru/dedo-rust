@@ -3,6 +3,7 @@ mod tests {
     use super::super::defaults::ENVIRONMENT;
     use super::super::parser::{parse, parse_single};
     use super::super::types::{Unit, UnitSet, Value};
+    use pretty_assertions::assert_eq;
 
     fn parse_helper(input: &'static str) -> Result<Value, ()> {
         parse_single(&mut ENVIRONMENT.clone(), input)
