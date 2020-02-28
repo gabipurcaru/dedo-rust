@@ -33,6 +33,10 @@ lazy_static! {
        "h" to "hour" is 1,
        "d" to "day" is 1,
        "w" to "week" is 1,
-       "y" to "year" is 1
+       "y" to "year" is 1,
+       "ron" to "RON" is 1,
+       "gbp" to "GBP" is 1,
+       "usd" to "USD" is 1,
+       "eur" to "EUR" is 1
     ];
 }

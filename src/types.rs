@@ -79,13 +79,15 @@ impl Environment {
             // loop until no changes are made anymore
             let mut is_saturated = true;
 
-            for ((left_from, left_to), left_ratio) in conversions {
-                for ((right_from, right_to), right_ratio) in conversions {
-                    if left_to.clone() == right_from.clone()
-                        && !conversions.contains_key(&(left_from.clone(), right_to.clone()))
+            let mut new_conversions = HashMap::new();
+            for ((left_from, left_to), left_ratio) in &conversions {
+                for ((right_from, right_to), right_ratio) in &conversions {
+                    let key = (left_from.clone(), right_to.clone());
+                    if left_to == right_from
+                        && !conversions.contains_key(&key)
                     {
-                        conversions.insert(
-                            (left_from.clone(), right_to.clone()),
+                        new_conversions.insert(
+                            key,
                             left_ratio * right_ratio,
                         );
                         is_saturated = false;
@@ -96,6 +98,8 @@ impl Environment {
             if is_saturated {
                 break;
             }
+
+            conversions.extend(new_conversions);
         }
 
         Conversions(conversions)

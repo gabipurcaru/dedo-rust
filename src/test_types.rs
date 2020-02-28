@@ -31,10 +31,10 @@ mod tests {
     fn environment_size() {
         // all self, mirror and transitive
         // dependencies should be there
-        assert_eq!(get_env().conversions.0.len(), 20);
+        assert_eq!(get_env().conversions.0.len(), 18);
 
         // combinatorial explosion!
-        assert_eq!(ENVIRONMENT.conversions.0.len(), 510);
+        assert_eq!(ENVIRONMENT.conversions.0.len(), 555);
     }
 
     #[bench]
