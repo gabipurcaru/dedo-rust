@@ -5,11 +5,12 @@ mod tests {
     use super::super::defaults::*;
     use super::super::types::*;
     use super::test::Bencher;
+    use std::collections::HashMap;
 
     fn get_env() -> Environment {
         environment![
             "km" to "m" is 1000.0,
-            "m" to "cm" is 1000.0,
+            "m" to "cm" is 100.0,
             "h" to "min" is 60.0,
             "min" to "s" is 60.0
         ]
@@ -17,25 +18,23 @@ mod tests {
 
     #[test]
     fn environment_creation() {
-        assert_eq!(
-            get_env(),
-            Environment::new(&vec![
-                Conversion::new("km", "m", 1000.0),
-                Conversion::new("m", "cm", 1000.0),
-                Conversion::new("h", "min", 60.0),
-                Conversion::new("min", "s", 60.0),
-            ],),
-        );
+        let mut map = HashMap::new();
+        map.insert(("km".into(), "m".into()), 1000.0);
+        map.insert(("m".into(), "cm".into()), 100.0);
+        map.insert(("h".into(), "min".into()), 60.0);
+        map.insert(("min".into(), "s".into()), 60.0);
+
+        assert_eq!(get_env(), Environment::new(&Conversions(map)));
     }
 
     #[test]
     fn environment_size() {
         // all self, mirror and transitive
         // dependencies should be there
-        assert_eq!(get_env().conversions.len(), 20);
+        assert_eq!(get_env().conversions.0.len(), 20);
 
         // combinatorial explosion!
-        assert_eq!(ENVIRONMENT.conversions.len(), 510);
+        assert_eq!(ENVIRONMENT.conversions.0.len(), 510);
     }
 
     #[bench]

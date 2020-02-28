@@ -3,13 +3,13 @@ use std::string::String;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Environment {
-    pub conversions: Vec<Conversion>,
+    pub conversions: Conversions,
     values: Vec<Result<Value, ()>>,
     vars: HashMap<String, Value>,
 }
 
 impl Environment {
-    pub fn new(conversions: &Vec<Conversion>) -> Environment {
+    pub fn new(conversions: &Conversions) -> Environment {
         Environment {
             conversions: Environment::expand_conversions(conversions),
             values: Vec::new(),
@@ -22,14 +22,11 @@ impl Environment {
     }
 
     fn conversion_ratio(&self, from: &Unit, to: &Unit) -> Result<f64, String> {
-        // TODO: replace with hashmap lookup
-        for conversion in &self.conversions {
-            if conversion.from == *from && conversion.to == *to {
-                return Ok(conversion.ratio);
-            }
-        }
-
-        Err(format!("Cannot convert from {:?} to {:?}", from, to))
+        self.conversions
+            .0
+            .get(&(from.clone(), to.clone()))
+            .map(|ratio| ratio.clone())
+            .ok_or(format!("Cannot convert from {:?} to {:?}", from, to))
     }
 
     /// unit conversions e.g. 1km/h to 0.28m/s etc.
@@ -61,33 +58,17 @@ impl Environment {
         converted
     }
 
-    fn expand_conversions(basic_conversions: &Vec<Conversion>) -> Vec<Conversion> {
-        let mut conversions = Vec::new();
+    fn expand_conversions(basic_conversions: &Conversions) -> Conversions {
+        let mut conversions = HashMap::new();
 
         // Add a -> b, b -> a, a -> a and b -> b conversions
-        for conversion in basic_conversions {
+        for conversion in basic_conversions.clone().0 {
             match conversion {
-                Conversion { from, to, ratio } => {
-                    conversions.push(Conversion {
-                        from: from.clone(),
-                        to: to.clone(),
-                        ratio: ratio.clone(),
-                    });
-                    conversions.push(Conversion {
-                        from: to.clone(),
-                        to: from.clone(),
-                        ratio: 1. / ratio,
-                    });
-                    conversions.push(Conversion {
-                        from: from.clone(),
-                        to: from.clone(),
-                        ratio: 1.,
-                    });
-                    conversions.push(Conversion {
-                        from: to.clone(),
-                        to: to.clone(),
-                        ratio: 1.,
-                    });
+                ((from, to), ratio) => {
+                    conversions.insert((from.clone(), to.clone()), ratio.clone());
+                    conversions.insert((to.clone(), from.clone()), 1. / ratio);
+                    conversions.insert((from.clone(), from.clone()), 1.);
+                    conversions.insert((to.clone(), to.clone()), 1.);
                 }
             }
         }
@@ -97,22 +78,16 @@ impl Environment {
         loop {
             // loop until no changes are made anymore
             let mut is_saturated = true;
-            let initial_length = conversions.len();
 
-            for left in 0..initial_length {
-                for right in 0..initial_length {
-                    if conversions[left].to == conversions[right].from
-                        && Environment::should_add(
-                            &conversions,
-                            &conversions[left],
-                            &conversions[right],
-                        )
+            for ((left_from, left_to), left_ratio) in conversions {
+                for ((right_from, right_to), right_ratio) in conversions {
+                    if left_to.clone() == right_from.clone()
+                        && !conversions.contains_key(&(left_from.clone(), right_to.clone()))
                     {
-                        conversions.push(Conversion {
-                            from: conversions[left].from.clone(),
-                            to: conversions[right].to.clone(),
-                            ratio: conversions[left].ratio * conversions[right].ratio,
-                        });
+                        conversions.insert(
+                            (left_from.clone(), right_to.clone()),
+                            left_ratio * right_ratio,
+                        );
                         is_saturated = false;
                     }
                 }
@@ -123,17 +98,7 @@ impl Environment {
             }
         }
 
-        conversions
-    }
-
-    fn should_add(conversions: &Vec<Conversion>, left: &Conversion, right: &Conversion) -> bool {
-        for conversion in conversions {
-            if conversion.from == left.from && conversion.to == right.to {
-                return false;
-            }
-        }
-
-        true
+        Conversions(conversions)
     }
 
     pub fn add(&self, left: Value, right: Value) -> Value {
@@ -282,32 +247,18 @@ impl Environment {
 macro_rules! environment {
     ($($from:literal to $to:literal is $num:literal),*) => {
         {
-            let tmp_vec: Vec<Conversion> = vec![
-                $(
-                    Conversion::new($from, $to, $num as f64),
-                )*
-            ];
-            Environment::new(&tmp_vec)
+            let mut tmp_map: std::collections::HashMap<(Unit, Unit), f64>
+                = std::collections::HashMap::new();
+            $(
+                tmp_map.insert(($from.into(), $to.into()), $num as f64);
+            )*
+            Environment::new(&Conversions(tmp_map))
         }
     } ;
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct Conversion {
-    from: Unit,
-    to: Unit,
-    ratio: f64,
-}
-
-impl Conversion {
-    pub fn new(from: &'static str, to: &'static str, ratio: f64) -> Conversion {
-        Conversion {
-            from: Unit(from.to_string()),
-            to: Unit(to.to_string()),
-            ratio,
-        }
-    }
-}
+pub struct Conversions(pub HashMap<(Unit, Unit), f64>);
 
 #[derive(Clone, Debug, Hash)]
 pub struct Unit(pub String);
