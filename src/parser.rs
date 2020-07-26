@@ -1,12 +1,13 @@
 use crate::defaults::ENVIRONMENT;
 use crate::types::*;
+use crate::runtime::evaluate;
 use regex::Regex;
 
 lalrpop_mod!(language);
 
-pub fn parse_single<'input>(env: &mut Environment, input: &'input str) -> Result<Value, ()> {
-    match language::TermParser::new().parse(env, input) {
-        Ok(Ok(v)) => Ok(v),
+pub fn parse_single<'input>(env: &'input mut Environment, input: &'input str) -> Result<Value, ()> {
+    match language::TermParser::new().parse(input) {
+        Ok(s) => evaluate(env, s),
         _ => Err(()),
     }
 }

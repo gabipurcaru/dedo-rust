@@ -1,4 +1,5 @@
 #![feature(test)]
+#![feature(box_patterns)]
 
 #[macro_use]
 extern crate lazy_static;
@@ -10,6 +11,8 @@ extern crate lalrpop_util;
 pub mod types;
 pub mod defaults;
 pub mod parser;
+pub mod ast;
+pub mod runtime;
 
 // test
 mod test_parser;

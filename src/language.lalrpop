@@ -1,42 +1,43 @@
 use std::str::FromStr;
 use crate::types::{Value, Environment};
+use crate::ast::{Statement, Term, Op};
 
-grammar<'a>(env: &'a mut Environment);
+grammar<'a>();
 
 Num: f64 = r"[0-9]+(?:\.[0-9]+)?" => f64::from_str(<>).unwrap();
 
 Ident: String = r"[a-zA-Z£$€_]+" => <>.into();
 
-BasicTerm: Result<Value, ()> = {
-    "(" <Term> ")" => <>,
-    "-" <BasicTerm> => Ok(Value::negate(<>?)),
-    <Num> <Ident> => Ok(Value::simple(<>)),
-    <i:Ident> <n:Num> => Ok(Value::simple(n, i)),
-    <Num> => Ok(Value::unitless(<>)),
-    <Ident> => env.ident(<>),
+BasicTerm: Term = {
+    "(" <AddTerm> ")" => <>,
+    "-" <BasicTerm> => Term::Negate(Box::new(<>)),
+    <n:Num> <i:Ident> => Term::Binary(Box::new(Term::Num(n)), Op::Mul, Box::new(Term::Ident(i))),
+    <i:Ident> <n:Num> => Term::Binary(Box::new(Term::Num(n)), Op::Mul, Box::new(Term::Ident(i))),
+    <Num> => Term::Num(<>),
+    <Ident> => Term::Ident(<>),
 };
 
-PowTerm: Result<Value, ()> = {
+PowTerm: Term = {
     BasicTerm,
-    <l:PowTerm> "**" <r:BasicTerm> => Ok(env.pow(l?, r?)),
-    <l:PowTerm> "^" <r:BasicTerm> => Ok(env.pow(l?, r?)),
+    <l:PowTerm> "**" <r:BasicTerm> => Term::Binary(Box::new(l), Op::Pow, Box::new(r)),
+    <l:PowTerm> "^" <r:BasicTerm> => Term::Binary(Box::new(l), Op::Pow, Box::new(r)),
 }
 
-MulTerm: Result<Value, ()> = {
+MulTerm: Term = {
     PowTerm,
-    <l:MulTerm> "*" <r:PowTerm> => Ok(env.mul(l?, r?)),
-    <l:MulTerm> "/" <r:PowTerm> => Ok(env.div(l?, r?)),
+    <l:MulTerm> "*" <r:PowTerm> => Term::Binary(Box::new(l), Op::Mul, Box::new(r)),
+    <l:MulTerm> "/" <r:PowTerm> => Term::Binary(Box::new(l), Op::Div, Box::new(r)),
 }
 
-AddTerm: Result<Value, ()> = {
+AddTerm: Term = {
     MulTerm,
-    <l:AddTerm> "+" <r:MulTerm> => Ok(env.add(l?, r?)),
-    <l:AddTerm> "-" <r:MulTerm> => Ok(env.sub(l?, r?)),
+    <l:AddTerm> "+" <r:MulTerm> => Term::Binary(Box::new(l), Op::Add, Box::new(r)),
+    <l:AddTerm> "-" <r:MulTerm> => Term::Binary(Box::new(l), Op::Sub, Box::new(r)),
 }
 
-pub Term: Result<Value, ()> = {
-    AddTerm,
-    <i:Ident> "=" <v:AddTerm> => env.assign(i, v?),
-    <lhs:Term> "in" <rhs:MulTerm> => Ok(env.convert(lhs?, rhs?)),
-    <lhs:Term> "to" <rhs:MulTerm> => Ok(env.convert(lhs?, rhs?)),
+pub Term: Statement = {
+    AddTerm => Statement::Basic(<>),
+    <Ident> "=" <AddTerm> => Statement::Assign(<>),
+    <AddTerm> "in" <MulTerm> => Statement::Transform(<>),
+    <AddTerm> "to" <MulTerm> => Statement::Transform(<>),
 };
