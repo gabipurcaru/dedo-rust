@@ -1,7 +1,7 @@
-use crate::defaults::ENVIRONMENT;
-use crate::types::*;
-use crate::runtime::evaluate;
 use crate::ast::*;
+use crate::defaults::ENVIRONMENT;
+use crate::runtime::evaluate;
+use crate::types::*;
 use peg;
 use regex::Regex;
 
@@ -30,7 +30,30 @@ peg::parser!(grammar dedo_parser() for str {
         x:(@) _ "*" _ y:@ { Term::Binary(Box::new(x), Op::Mul, Box::new(y)) }
         x:(@) _ "/" _ y:@ { Term::Binary(Box::new(x), Op::Div, Box::new(y)) }
 
-        -- 
+        --
+
+        n:number() _ i:ident() _ "^" t:term() { 
+            Term::Binary(
+                Box::new(Term::Num(n)), 
+                Op::Mul, 
+                Box::new(Term::Binary(
+                    Box::new(Term::Ident(i)), 
+                    Op::Pow, Box::new(t))
+                )
+            ) 
+        }
+        n:number() _ i:ident() _ "**" t:term() { 
+            Term::Binary(
+                Box::new(Term::Num(n)), 
+                Op::Mul, 
+                Box::new(Term::Binary(
+                    Box::new(Term::Ident(i)), 
+                    Op::Pow, Box::new(t))
+                )
+            ) 
+        }
+
+        --
 
         x:@ _ "^" _ y:(@) { Term::Binary(Box::new(x), Op::Pow, Box::new(y)) }
         x:@ _ "**" _ y:(@) { Term::Binary(Box::new(x), Op::Pow, Box::new(y)) }
