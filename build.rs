@@ -1,7 +1,5 @@
-extern crate lalrpop;
-
-use std::fs;
 use std::env;
+use std::fs;
 use std::io::Write;
 use std::path::Path;
 
@@ -24,8 +22,6 @@ fn split_spec(input: String) -> (String, String) {
 }
 
 fn main() {
-    lalrpop::process_root().unwrap();
-
     let paths = fs::read_dir("./spec").unwrap();
 
     let out_dir = env::var("OUT_DIR").unwrap();
@@ -43,7 +39,10 @@ fn main() {
 
         let (left, right) = split_spec(contents);
 
-        output_file.write_all(format!("
+        output_file
+            .write_all(
+                format!(
+                    "
             #[test]
             pub fn spec_{}() {{
                 self::assert_eq!(
@@ -51,6 +50,11 @@ fn main() {
                     parse(\"{}\"),
                 );
             }}
-        ", filename, right, left).as_bytes()).unwrap();
+        ",
+                    filename, right, left
+                )
+                .as_bytes(),
+            )
+            .unwrap();
     }
 }
