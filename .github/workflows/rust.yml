@@ -4,7 +4,6 @@ on: [push]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     defaults:
@@ -20,3 +19,19 @@ jobs:
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
+  build_wasm:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: lang
+
+    steps:
+    - uses: jetli/wasm-pack-action@v0.3.0
+      with:
+        version: 'latest'
+    - name: Build
+      run: wasm-pack build
+    - name: Test
+      run: wasm-pack test --node
