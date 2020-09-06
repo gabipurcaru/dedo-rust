@@ -1,2 +1,3 @@
 lang/target
+lang/pkg
 lang/**/*.rs.bk

@@ -44,6 +44,7 @@ fn main() {
                 format!(
                     "
             #[test]
+            #[wasm_bindgen_test]
             pub fn spec_{}() {{
                 self::assert_eq!(
                     parse(\"{}\"),

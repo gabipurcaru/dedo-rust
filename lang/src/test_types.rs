@@ -6,6 +6,7 @@ mod tests {
     use super::super::types::*;
     use super::test::Bencher;
     use std::collections::HashMap;
+    use wasm_bindgen_test::*;
 
     fn get_env() -> Environment {
         environment![
@@ -17,6 +18,7 @@ mod tests {
     }
 
     #[test]
+    #[wasm_bindgen_test]
     fn environment_creation() {
         let mut map = HashMap::new();
         map.insert(("km".into(), "m".into()), 1000.0);
@@ -28,6 +30,7 @@ mod tests {
     }
 
     #[test]
+    #[wasm_bindgen_test]
     fn environment_size() {
         // all self, mirror and transitive
         // dependencies should be there
@@ -74,6 +77,7 @@ mod tests {
     }
 
     #[test]
+    #[wasm_bindgen_test]
     fn conversion() {
         let env = get_env();
 
@@ -106,6 +110,7 @@ mod tests {
     }
 
     #[test]
+    #[wasm_bindgen_test]
     fn addition() {
         let env = get_env();
         let left = Value::new(
@@ -133,6 +138,7 @@ mod tests {
     }
 
     #[test]
+    #[wasm_bindgen_test]
     fn subtraction() {
         let env = get_env();
         let left = Value::new(
@@ -160,6 +166,7 @@ mod tests {
     }
 
     #[test]
+    #[wasm_bindgen_test]
     fn multiplication() {
         let env = get_env();
         let left = Value::new(
@@ -186,6 +193,7 @@ mod tests {
     }
 
     #[test]
+    #[wasm_bindgen_test]
     fn division() {
         let env = get_env();
         let left = Value::new(

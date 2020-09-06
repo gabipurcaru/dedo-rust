@@ -4,12 +4,14 @@ mod tests {
     use super::super::parser::{parse, parse_single};
     use super::super::types::{Unit, UnitSet, Value};
     use pretty_assertions::assert_eq;
+    use wasm_bindgen_test::*;
 
     fn parse_helper(input: &'static str) -> Result<Value, ()> {
         parse_single(&mut ENVIRONMENT.clone(), input)
     }
 
     #[test]
+    #[wasm_bindgen_test]
     fn basic_parse() {
         assert_eq!(parse_helper("$1234"), Ok(Value::simple(1234.0, "$")));
 
@@ -17,6 +19,7 @@ mod tests {
     }
 
     #[test]
+    #[wasm_bindgen_test]
     fn parse_negation() {
         assert_eq!(
             parse_helper("-1234   usd"),
@@ -25,6 +28,7 @@ mod tests {
     }
 
     #[test]
+    #[wasm_bindgen_test]
     fn parse_addition() {
         assert_eq!(
             parse_helper("123 usd + 12 usd"),
@@ -47,6 +51,7 @@ mod tests {
     }
 
     #[test]
+    #[wasm_bindgen_test]
     fn parse_power() {
         assert_eq!(parse_helper("2 ** 3"), Ok(Value::unitless(8.0)),);
         assert_eq!(

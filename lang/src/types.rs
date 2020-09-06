@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::string::String;
+use serde::{Serialize, Deserialize};
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Environment {
@@ -264,7 +265,7 @@ macro_rules! environment {
 #[derive(Clone, Debug, PartialEq)]
 pub struct Conversions(pub HashMap<(Unit, Unit), f64>);
 
-#[derive(Clone, Debug, Hash)]
+#[derive(Clone, Debug, Hash, Serialize, Deserialize)]
 pub struct Unit(pub String);
 
 impl From<&str> for Unit {
@@ -281,7 +282,7 @@ impl PartialEq for Unit {
 
 impl Eq for Unit {}
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct UnitSet(pub HashMap<Unit, i32>);
 
 impl From<Unit> for UnitSet {
@@ -306,7 +307,7 @@ macro_rules! units {
     } ;
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Value {
     num: f64,
     units: UnitSet,
