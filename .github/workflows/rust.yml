@@ -6,13 +6,12 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    working-directory: lang
 
     steps:
     - uses: actions/checkout@v2
     - name: Nightly
       run: rustup default nightly
-    - name: CD
-      run: cd lang
     - name: Build
       run: cargo build --verbose
     - name: Run tests
